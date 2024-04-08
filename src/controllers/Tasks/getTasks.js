@@ -12,7 +12,7 @@ const getTasks = async (query) => {
     dateDue.setDate(deliveryDueDate + 1); // Suma un dia adicional
 
     // Asegurate de que 'dateDue' esté en el formato correcto para la solicitud
-    dateDue = DateDue.toISOString().slice(0, 10);
+    dateDue = dateDue.toISOString().slice(0, 10);
 
     if (!dateStart || dateStart === undefined) {
       // Agarro -5 dias al actual para guardarlo en dateStart
