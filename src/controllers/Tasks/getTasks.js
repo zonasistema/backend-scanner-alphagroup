@@ -3,35 +3,29 @@ import Settings from "../../utils/Setting.js";
 
 const getTasks = async (query) => {
   try {
-    // Obligatorio deliveryDueDate. taskStatusId --> Viene como un array, para poder traer todos los paquetes.
     const { deliveryStartDate, deliveryDueDate, taskStatusId } = query;
     const { url, headers } = Settings("/gettasks");
 
     let dateStart;
-    let dateDue = new Date(deliveryDueDate);
-    dateDue.setDate(deliveryDueDate + 1); // Suma un dia adicional
+    let dateDue = new Date(deliveryDueDate); // Convertir la cadena de fecha a un objeto Date
 
-    // Asegurate de que 'dateDue' esté en el formato correcto para la solicitud
-    dateDue = dateDue.toISOString().slice(0, 10);
+    // Sumar un día a la fecha deliveryDueDate
+    dateDue.setDate(dateDue.getDate() + 1);
 
-    if (!dateStart || dateStart === undefined) {
-      // Agarro -5 dias al actual para guardarlo en dateStart
+    if (!deliveryStartDate || deliveryStartDate === "undefined") {
+      // Agarrar -5 días al actual para guardar en dateStart
       const currentDate = new Date(dateDue);
-      currentDate.setDate(currentDate.getDate() - 3);
+      currentDate.setDate(currentDate.getDate() - 5);
       dateStart = currentDate.toISOString().slice(0, 10);
     } else {
       dateStart = deliveryStartDate;
     }
 
     const requestData = {
-      deliveryDueDate: dateDue,
-      deliveryStartDate:
-        deliveryStartDate === "undefined"
-          ? dateStart /* + "T12:00:00.000Z" */
-          : deliveryStartDate /* + "T12:00:00.000Z" */,
+      deliveryDueDate: dateDue.toISOString(), // Convertir de nuevo a cadena ISO 8601
+      deliveryStartDate: dateStart,
     };
 
-    // Por cada tarea hago una solicitud [10,15,20]
     const tasks = await Promise.all(
       JSON.parse(taskStatusId).map(async (status) => {
         const infoUrls = await axios.post(
@@ -48,11 +42,13 @@ const getTasks = async (query) => {
           recipientName: task.recipientName,
           routeSortId: task.routeSortId,
           driverName: task.driverName,
+          datestart: dateStart,
+          dateDue: dateDue.toISOString(), // Convertir de nuevo a cadena ISO 8601
         }));
       })
     );
 
-    const info = tasks.flat(); // Aplanamos el array de arrays
+    const info = tasks.flat(); // Aplanar el array de arrays
 
     if (!info.length) {
       return { msg: "No hay registros" };
