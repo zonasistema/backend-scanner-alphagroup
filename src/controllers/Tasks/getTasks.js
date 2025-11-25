@@ -1,10 +1,13 @@
 import axios from "axios";
-import Settings from "../../utils/Setting.js";
 
 const getTasks = async (query) => {
   try {
     const { deliveryStartDate, deliveryDueDate, taskStatusId } = query;
-    const { url, headers } = Settings("/gettasks");
+    const WOODELIVERY_URL =
+      process.env.WOODELIVERY_TASK_SEARCH_URL ||
+      "https://api.woodelivery.com/v2/tasks/search";
+    const API_KEY =
+      process.env.WOODELIVERY_API_KEY || process.env.SECRET_KEY || "";
 
     let dateStart;
     let dateDue = new Date(deliveryDueDate); // Convertir la cadena de fecha a un objeto Date
@@ -22,27 +25,33 @@ const getTasks = async (query) => {
     }
 
     const requestData = {
-      deliveryDueDate: dateDue.toISOString(), // Convertir de nuevo a cadena ISO 8601
-      deliveryStartDate: dateStart,
+      startDateTime: dateStart,
+      endDateTime: dateDue.toISOString(), // Convertir de nuevo a cadena ISO 8601
     };
 
     const tasks = await Promise.all(
       JSON.parse(taskStatusId).map(async (status) => {
-        const infoUrls = await axios.post(
-          url,
-          { ...requestData, taskStatusId: status },
-          { headers }
-        );
-        const statusResults = infoUrls.data.data;
-        console.log("Woodelivery gettasks per status", {
+        const payload = { ...requestData, taskStatusId: status };
+
+        const infoUrls = await axios.post(WOODELIVERY_URL, payload, {
+          headers: {
+            Accept: "application/json",
+            Authorization: API_KEY,
+            "Content-Type": "application/json",
+          },
+        });
+
+        const statusResults = infoUrls.data?.data || [];
+        console.log("Woodelivery v2 search per status", {
           status,
-          deliveryStartDate: dateStart,
-          deliveryDueDate: dateDue.toISOString(),
+          startDateTime: payload.startDateTime,
+          endDateTime: payload.endDateTime,
           count: statusResults.length,
         });
 
         return statusResults.map((task) => ({
           id: task.id,
+          guid: task.guid,
           taskDesc: task.taskDesc,
           externalKey: task.externalKey,
           destinationAddress: task.destinationAddress,
@@ -51,17 +60,17 @@ const getTasks = async (query) => {
           routeSortId: task.routeSortId,
           driverName: task.driverName,
           datestart: dateStart,
-          dateDue: dateDue.toISOString(), // Convertir de nuevo a cadena ISO 8601
+          dateDue: dateDue.toISOString(),
         }));
       })
     );
 
     const info = tasks.flat(); // Aplanar el array de arrays
 
-    console.log("Woodelivery gettasks aggregated", {
+    console.log("Woodelivery v2 search aggregated", {
       statusIds: JSON.parse(taskStatusId),
-      deliveryStartDate: dateStart,
-      deliveryDueDate: dateDue.toISOString(),
+      startDateTime: dateStart,
+      endDateTime: dateDue.toISOString(),
       count: info.length,
     });
 
