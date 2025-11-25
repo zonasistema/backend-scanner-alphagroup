@@ -50,6 +50,13 @@ const getTasks = async (query) => {
 
     const info = tasks.flat(); // Aplanar el array de arrays
 
+    console.log("Woodelivery gettasks result", {
+      statusIds: JSON.parse(taskStatusId),
+      deliveryStartDate: dateStart,
+      deliveryDueDate: dateDue.toISOString(),
+      count: info.length,
+    });
+
     if (!info.length) {
       return { msg: "No hay registros" };
     }
