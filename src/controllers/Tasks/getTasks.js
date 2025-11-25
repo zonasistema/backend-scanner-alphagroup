@@ -33,6 +33,11 @@ const getTasks = async (query) => {
       JSON.parse(taskStatusId).map(async (status) => {
         const payload = { ...requestData, taskStatusId: status };
 
+        console.log("Woodelivery v2 search payload", {
+          url: WOODELIVERY_URL,
+          ...payload,
+        });
+
         const infoUrls = await axios.post(WOODELIVERY_URL, payload, {
           headers: {
             Accept: "application/json",
