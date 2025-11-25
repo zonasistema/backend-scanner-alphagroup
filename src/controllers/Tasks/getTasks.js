@@ -33,7 +33,15 @@ const getTasks = async (query) => {
           { ...requestData, taskStatusId: status },
           { headers }
         );
-        return infoUrls.data.data.map((task) => ({
+        const statusResults = infoUrls.data.data;
+        console.log("Woodelivery gettasks per status", {
+          status,
+          deliveryStartDate: dateStart,
+          deliveryDueDate: dateDue.toISOString(),
+          count: statusResults.length,
+        });
+
+        return statusResults.map((task) => ({
           id: task.id,
           taskDesc: task.taskDesc,
           externalKey: task.externalKey,
@@ -50,7 +58,7 @@ const getTasks = async (query) => {
 
     const info = tasks.flat(); // Aplanar el array de arrays
 
-    console.log("Woodelivery gettasks result", {
+    console.log("Woodelivery gettasks aggregated", {
       statusIds: JSON.parse(taskStatusId),
       deliveryStartDate: dateStart,
       deliveryDueDate: dateDue.toISOString(),
