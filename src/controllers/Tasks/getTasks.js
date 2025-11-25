@@ -58,37 +58,48 @@ const getTasks = async (query) => {
           ...payload,
         });
 
-        const infoUrls = await axios.post(WOODELIVERY_URL, payload, {
-          headers: {
-            Accept: "application/json",
-            Authorization: API_KEY,
-            "Content-Type": "application/json",
-          },
-        });
+        try {
+          const infoUrls = await axios.post(WOODELIVERY_URL, payload, {
+            headers: {
+              Accept: "application/json",
+              Authorization: API_KEY,
+              "Content-Type": "application/json",
+            },
+          });
 
-        const statusResults = infoUrls.data?.data || [];
-        console.log("Woodelivery v2 search per status", {
-          status,
-          startDateTime: payload.startDateTime,
-          endDateTime: payload.endDateTime,
-          count: statusResults.length,
-          success: infoUrls.data?.success,
-          message: infoUrls.data?.message,
-        });
+          const statusResults = infoUrls.data?.data || [];
+          console.log("Woodelivery v2 search per status", {
+            status,
+            startDateTime: payload.startDateTime,
+            endDateTime: payload.endDateTime,
+            count: statusResults.length,
+            success: infoUrls.data?.success,
+            message: infoUrls.data?.message,
+          });
 
-        return statusResults.map((task) => ({
-          id: task.id,
-          guid: task.guid,
-          taskDesc: task.taskDesc,
-          externalKey: task.externalKey,
-          destinationAddress: task.destinationAddress,
-          destinationNotes: task.destinationNotes,
-          recipientName: task.recipientName,
-          routeSortId: task.routeSortId,
-          driverName: task.driverName,
-          datestart: startISO,
-          dateDue: endISO,
-        }));
+          return statusResults.map((task) => ({
+            id: task.id,
+            guid: task.guid,
+            taskDesc: task.taskDesc,
+            externalKey: task.externalKey,
+            destinationAddress: task.destinationAddress,
+            destinationNotes: task.destinationNotes,
+            recipientName: task.recipientName,
+            routeSortId: task.routeSortId,
+            driverName: task.driverName,
+            datestart: startISO,
+            dateDue: endISO,
+          }));
+        } catch (err) {
+          console.log("Woodelivery v2 search error per status", {
+            status,
+            startDateTime: payload.startDateTime,
+            endDateTime: payload.endDateTime,
+            error: err.response?.status || err.message,
+            data: err.response?.data,
+          });
+          return [];
+        }
       })
     );
 
