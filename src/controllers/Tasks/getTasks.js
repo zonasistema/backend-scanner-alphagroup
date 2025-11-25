@@ -9,7 +9,24 @@ const getTasks = async (query) => {
     const API_KEY =
       process.env.WOODELIVERY_API_KEY || process.env.SECRET_KEY || "";
 
-    let dateStart;
+    const normalizeStatusIds = (raw) => {
+      if (Array.isArray(raw)) return raw;
+      if (typeof raw === "string") {
+        try {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) return parsed;
+          if (parsed) return [parsed];
+        } catch (err) {
+          if (raw.includes(",")) return raw.split(",").map((s) => s.trim());
+          return raw ? [raw] : [];
+        }
+      }
+      return [];
+    };
+
+    const statusIds = normalizeStatusIds(taskStatusId);
+
+    let dateStartObj;
     let dateDue = new Date(deliveryDueDate); // Convertir la cadena de fecha a un objeto Date
 
     // Sumar un día a la fecha deliveryDueDate
@@ -19,18 +36,21 @@ const getTasks = async (query) => {
       // Agarrar -5 días al actual para guardar en dateStart
       const currentDate = new Date(dateDue);
       currentDate.setDate(currentDate.getDate() - 5);
-      dateStart = currentDate.toISOString().slice(0, 10);
+      dateStartObj = currentDate;
     } else {
-      dateStart = deliveryStartDate;
+      dateStartObj = new Date(deliveryStartDate);
     }
 
+    const startISO = dateStartObj.toISOString();
+    const endISO = dateDue.toISOString(); // Convertir de nuevo a cadena ISO 8601
+
     const requestData = {
-      startDateTime: dateStart,
-      endDateTime: dateDue.toISOString(), // Convertir de nuevo a cadena ISO 8601
+      startDateTime: startISO,
+      endDateTime: endISO,
     };
 
     const tasks = await Promise.all(
-      JSON.parse(taskStatusId).map(async (status) => {
+      statusIds.map(async (status) => {
         const payload = { ...requestData, taskStatusId: status };
 
         console.log("Woodelivery v2 search payload", {
@@ -52,6 +72,8 @@ const getTasks = async (query) => {
           startDateTime: payload.startDateTime,
           endDateTime: payload.endDateTime,
           count: statusResults.length,
+          success: infoUrls.data?.success,
+          message: infoUrls.data?.message,
         });
 
         return statusResults.map((task) => ({
@@ -73,9 +95,9 @@ const getTasks = async (query) => {
     const info = tasks.flat(); // Aplanar el array de arrays
 
     console.log("Woodelivery v2 search aggregated", {
-      statusIds: JSON.parse(taskStatusId),
-      startDateTime: dateStart,
-      endDateTime: dateDue.toISOString(),
+      statusIds,
+      startDateTime: startISO,
+      endDateTime: endISO,
       count: info.length,
     });
 
