@@ -86,8 +86,8 @@ const getTasks = async (query) => {
           recipientName: task.recipientName,
           routeSortId: task.routeSortId,
           driverName: task.driverName,
-          datestart: dateStart,
-          dateDue: dateDue.toISOString(),
+          datestart: startISO,
+          dateDue: endISO,
         }));
       })
     );
