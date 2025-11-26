@@ -53,10 +53,10 @@ const getTasks = async (query) => {
       statusIds.map(async (status) => {
         const payload = { ...requestData, taskStatusId: status };
 
-        console.log("Woodelivery v2 search payload", {
-          url: WOODELIVERY_URL,
-          ...payload,
-        });
+        // console.log("Woodelivery v2 search payload", {
+        //   url: WOODELIVERY_URL,
+        //   ...payload,
+        // });
 
         try {
           const infoUrls = await axios.post(WOODELIVERY_URL, payload, {
@@ -68,14 +68,14 @@ const getTasks = async (query) => {
           });
 
           const statusResults = infoUrls.data?.data || [];
-          console.log("Woodelivery v2 search per status", {
-            status,
-            startDateTime: payload.startDateTime,
-            endDateTime: payload.endDateTime,
-            count: statusResults.length,
-            success: infoUrls.data?.success,
-            message: infoUrls.data?.message,
-          });
+          // console.log("Woodelivery v2 search per status", {
+          //   status,
+          //   startDateTime: payload.startDateTime,
+          //   endDateTime: payload.endDateTime,
+          //   count: statusResults.length,
+          //   success: infoUrls.data?.success,
+          //   message: infoUrls.data?.message,
+          // });
 
           return statusResults.map((task) => ({
             id: task.id,
@@ -91,13 +91,13 @@ const getTasks = async (query) => {
             dateDue: endISO,
           }));
         } catch (err) {
-          console.log("Woodelivery v2 search error per status", {
-            status,
-            startDateTime: payload.startDateTime,
-            endDateTime: payload.endDateTime,
-            error: err.response?.status || err.message,
-            data: err.response?.data,
-          });
+          // console.log("Woodelivery v2 search error per status", {
+          //   status,
+          //   startDateTime: payload.startDateTime,
+          //   endDateTime: payload.endDateTime,
+          //   error: err.response?.status || err.message,
+          //   data: err.response?.data,
+          // });
           return [];
         }
       })
@@ -105,12 +105,12 @@ const getTasks = async (query) => {
 
     const info = tasks.flat(); // Aplanar el array de arrays
 
-    console.log("Woodelivery v2 search aggregated", {
-      statusIds,
-      startDateTime: startISO,
-      endDateTime: endISO,
-      count: info.length,
-    });
+    // console.log("Woodelivery v2 search aggregated", {
+    //   statusIds,
+    //   startDateTime: startISO,
+    //   endDateTime: endISO,
+    //   count: info.length,
+    // });
 
     if (!info.length) {
       return { msg: "No hay registros" };
