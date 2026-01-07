@@ -6,7 +6,7 @@ const getTaskId = async (req, res) => {
     const { taskId } = req.params;
     const { url, headers } = Settings("/gettask");
 
-    // url -->"https://api.woodelivery.com/api/form/gettask",
+    // url -->"https://api.wodely.com/api/form/gettask",
     // headers --> { headers: { Authorization: process.env.SECRET_KEY } }
     const info = await axios.post(url, { taskGuid: taskId }, { headers });
 

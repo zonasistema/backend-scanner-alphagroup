@@ -8,7 +8,7 @@ const { SECRET_KEY } = process.env;
 const Settings = (url) => {
   return {
     // crossDomain: true,s
-    url: `https://api.woodelivery.com/api/form${url}`,
+    url: `https://api.wodely.com/api/form${url}`,
     headers: {
       Authorization: SECRET_KEY,
     },
@@ -17,4 +17,4 @@ const Settings = (url) => {
 };
 
 export default Settings;
-// url: `https://api.woodelivery.com/swagger/v1/swagger.json/#/components/schemas/GetTasksRequest`,
+// url: `https://api.wodely.com/swagger/v1/swagger.json/#/components/schemas/GetTasksRequest`,

@@ -5,7 +5,7 @@ const getTasks = async (query) => {
     const { deliveryStartDate, deliveryDueDate, taskStatusId } = query;
     const WOODELIVERY_URL =
       process.env.WOODELIVERY_TASK_SEARCH_URL ||
-      "https://api.woodelivery.com/v2/tasks/search";
+      "https://api.wodely.com/v2/tasks/search";
     const API_KEY =
       process.env.WOODELIVERY_API_KEY || process.env.SECRET_KEY || "";
 
